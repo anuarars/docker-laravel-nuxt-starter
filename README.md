@@ -1,3 +1,8 @@
+## Start Project
+Add Nuxt project to Nuxt folder
+Add Laravel Project to Laravel folder
+Run  docker-compose up -d
+
 # Nuxt.js NGINX Docker
 
 ## Getting you instance ready for Docker
