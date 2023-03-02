@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  nuxt:
+    build:
+      context: ./
+      dockerfile: ./_docker/nuxt/Dockerfile
+      args:
+        - PROJECT_DIR=${NUXT}
+    restart: always
+    ports:
+      - "3000:3000"
+    command:
+      "npm run start"
+
+  php:
+    build:
+      context: ./
+      dockerfile: ./_docker/laravel/Dockerfile
+    container_name: php
+    volumes:
+      - ./${LARAVEL}/app:/var/www/app
+    depends_on:
+      - mysql
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./_docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - nuxt
+      - php
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: pma-dev
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+      UPLOAD_LIMIT: 3000M
+    depends_on:
+      - mysql
+    ports:
+      - 8080:80
+
+volumes:
+  dbdata:
+  # backend-vendor:
